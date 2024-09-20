@@ -1,16 +1,44 @@
 /* eslint-disable no-unused-vars */
-import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    setError('');
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
+        email, // Use lowercase fields here
+        password,
+      });
+
+      console.log('Login successful:', response.data);
+      localStorage.setItem('token', response.data.token);
+
+      // Show success toast
+      toast.success('Login successful! Redirecting...');
+
+      // Navigate to the dashboard after a delay
+      setTimeout(() => {
+        navigate('/');
+      }, 1500); // Adjust the delay as needed
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError(error.response?.data?.message || 'Login failed. Please try again.');
+
+      // Show error toast
+      toast.error(error.response?.data?.message || 'Login failed. Please try again..');
+    }
   };
 
   return (

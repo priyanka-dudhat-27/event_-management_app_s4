@@ -186,6 +186,22 @@ const getFilteredEvents = async (req, res) => {
   }
 };
 
+//get event
+const getEvent= async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    res.status(200).json({ event });
+  } catch (error) {
+    console.error('Error fetching event:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 // Controller for RSVPing to an event
 const rsvpToEvent = async (req, res) => {
   const { eventId } = req.params;
@@ -263,6 +279,7 @@ export {
   getFilteredEvents,
   updateEvent,
   deleteEvent,
+  getEvent,
   getUserEvents,
   getUpcomingEvents,
   rsvpToEvent,

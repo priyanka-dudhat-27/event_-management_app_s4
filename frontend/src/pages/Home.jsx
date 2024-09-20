@@ -1,56 +1,47 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react';
-import axios from '../utils/axiosConfig';
-import EventCard from '../components/Event/EventCard';
-import EventForm from '../components/Event/EventForm';
-import { Button } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import EventCard from '../components/Event/EventCard'; // Adjust the import path as necessary
 
-const Home = () => {
-  const [events, setEvents] = useState([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+const HomePage = () => {
+  const [events, setEvents] = useState([]); // Initialize events as an empty array
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchUpcomingEvents = async () => {
       try {
-        const response = await axios.get('/events');
-        setEvents(response.data.events);
+        const response = await axios.get(`${API_URL}/api/events/getEvents`); // No token needed
+        setEvents(response.data.events || []); // Set events, default to an empty array if undefined
       } catch (err) {
-        console.error('Failed to fetch events:', err);
+        console.error('Fetch error:', err); // Log any errors for debugging
+        setError('Error fetching events');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchEvents();
+    fetchUpcomingEvents();
   }, []);
 
-  const handleCreateEvent = async (eventData) => {
-    try {
-      const response = await axios.post('/events', eventData);
-      setEvents([...events, response.data.event]);
-    } catch (err) {
-      console.error('Failed to create event:', err);
-    }
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error} (Check console for details)</p>;
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-bold">Upcoming Events</h1>
-        <Button variant="contained" color="primary" onClick={() => setIsFormOpen(true)}>
-          Create Event
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {events.map(event => (
-          <EventCard key={event._id} event={event} />
-        ))}
-      </div>
-      <EventForm
-        open={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleCreateEvent}
-      />
+    <div>
+      <h1>Upcoming Events</h1>
+      {events.length === 0 ? (
+        <p>No upcoming events</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {events.map(event => (
+            <EventCard key={event._id} event={event} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default Home;
+export default HomePage;

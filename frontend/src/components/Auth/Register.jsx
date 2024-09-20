@@ -1,15 +1,42 @@
-import { useState } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useState } from 'react';
+import axios from 'axios'; // Import axios
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { register } = useAuth();
+  const { setUser } = useAuth(); // Assuming there's a function to set the authenticated user
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await register(name, email, password);
+    try {
+      // Replace with your API URL
+      const API_URL = import.meta.env.VITE_API_URL ; 
+
+      // Make a POST request to the register API endpoint
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
+        name,     // name: name
+        email,    // email: email
+        password, // password: password
+      });
+
+      // Show success toast notification
+      toast.success('Registration successful!');
+
+      // Optional: Set the authenticated user in your context or local storage
+      setUser(response.data.user); // Assuming response.data.user contains user data
+      localStorage.setItem('token', response.data.token); // Save the token if provided
+
+      // Redirect or perform any action after successful registration
+    } catch (error) {
+      // Handle error response
+      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
+      toast.error(errorMessage);
+    }
   };
 
   return (

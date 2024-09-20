@@ -1,5 +1,5 @@
 import express from 'express';
-import { createEvent, getEvents, getFilteredEvents, updateEvent, deleteEvent, getUserEvents, getUpcomingEvents, rsvpToEvent, cancelRsvp } from '../controllers/eventController.js';
+import { createEvent, getEvents, getFilteredEvents, updateEvent, deleteEvent, getUserEvents,getEvent, getUpcomingEvents, rsvpToEvent, cancelRsvp } from '../controllers/eventController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import upload from '../utils/multer.js'; // Import multer configuration
 
@@ -25,6 +25,7 @@ router.put('/updateEvent/:eventId', authMiddleware, updateEvent);
 
 // Route to delete an event
 router.delete('/deleteEvent/:eventId', authMiddleware, deleteEvent);
+router.get('/getEvent/:id',getEvent);
 
 // Route to RSVP to an event
 router.post('/rsvp/:eventId', authMiddleware, rsvpToEvent);

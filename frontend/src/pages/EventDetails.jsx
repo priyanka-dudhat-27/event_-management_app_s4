@@ -1,69 +1,45 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from '../utils/axiosConfig';
-import { Typography, Button, Grid, Paper, Container } from '@mui/material';
+import axios from 'axios';
 
 const EventDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Get the event ID from the URL parameters
   const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
-        const res = await axios.get(`/events/${id}`);
-        setEvent(res.data.event);
+        const response = await axios.get(`${API_URL}/api/events/getEvent/${id}`); // No token needed
+        setEvent(response.data.event);
       } catch (err) {
-        console.error('Failed to fetch event details:', err);
+        console.error('Error fetching event:', err);
+        setError('Error fetching event details');
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchEventDetails();
   }, [id]);
 
-  if (!event) return <Typography variant="h4" align="center">Loading...</Typography>;
+  if (loading) return <p>Loading event details...</p>;
+  if (error) return <p>{error} (Check console for details)</p>;
+
+  if (!event) return <p>No event found</p>;
 
   return (
-    <Container maxWidth="lg" className="py-10">
-      <Paper elevation={3} className="p-6">
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <img
-              src={event.image || 'default-image-url.jpg'}
-              alt={event.title}
-              className="w-full h-96 object-cover rounded-md"
-            />
-          </Grid>
-          <Grid item xs={12} md={6} className="flex flex-col justify-between">
-            <div>
-              <Typography variant="h4" className="font-bold mb-4">
-                {event.title}
-              </Typography>
-              <Typography variant="body1" className="mb-4">
-                {event.description}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" className="mb-2">
-                Date: {new Date(event.date).toLocaleDateString()}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" className="mb-2">
-                Time: {event.time}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" className="mb-2">
-                Location: {event.location}
-              </Typography>
-            </div>
-            <Button
-              variant="contained"
-              color="primary"
-              className="mt-4"
-              fullWidth
-              onClick={() => alert('Ticket booked successfully!')}
-            >
-              Book Tickets
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold">{event.title}</h1>
+      <img src={event.image || "default-image-url.jpg"} alt={event.title} className="mt-4" />
+      <p className="mt-2">{event.description}</p>
+      <p className="mt-2"><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+      <p className="mt-2"><strong>Location:</strong> {event.location}</p>
+      <p className="mt-2"><strong>Max Attendees:</strong> {event.maxAttendees}</p>
+    </div>
   );
 };
 

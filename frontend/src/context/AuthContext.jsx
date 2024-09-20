@@ -1,7 +1,6 @@
-// AuthContext.js
 /* eslint-disable no-unused-vars */
 import { createContext, useState, useContext, useEffect } from 'react';
-import PropTypes from 'prop-types'; // Import PropTypes
+import PropTypes from 'prop-types';
 import axios from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,16 +14,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   // Check if user is logged in
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const res = await axios.get('/auth/check');
-        setUser(res.data.user);
+
+        const res = await axios.get(''); // Adjust endpoint as necessary
+        setUser(res.data.user || null); // Set user if found
       } catch (err) {
-        setUser(null);
+        setUser(null); // If error, ensure user is null
       } finally {
-        setLoading(false); // Ensure this is set to false after checking
+        setLoading(false); // Ensure loading state is updated
       }
     };
     checkUser();
@@ -32,31 +34,31 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('/auth/login', { email, password });
+      const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
       setUser(res.data.user);
-      navigate('/');
+      navigate('/'); // Redirect to home after login
     } catch (err) {
-      console.error(err.message);
+      console.error('Login failed:', err.message);
     }
   };
 
   const register = async (name, email, password) => {
     try {
-      const res = await axios.post('/auth/register', { name, email, password });
+      const res = await axios.post(`${API_URL}/api/auth/register`, { name, email, password });
       setUser(res.data.user);
-      navigate('/');
+      navigate('/'); // Redirect to home after registration
     } catch (err) {
-      console.error(err.message);
+      console.error('Registration failed:', err.message);
     }
   };
 
   const logout = async () => {
     try {
       await axios.post('/auth/logout');
-      setUser(null);
-      navigate('/login');
+      setUser(null); // Clear user state on logout
+      navigate('/login'); // Redirect to login page after logout
     } catch (err) {
-      console.error(err.message);
+      console.error('Logout failed:', err.message);
     }
   };
 
@@ -73,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Add PropTypes validation here
+// PropTypes validation
 AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired, // Ensure children prop is passed and it's a valid React node
+  children: PropTypes.node.isRequired,
 };

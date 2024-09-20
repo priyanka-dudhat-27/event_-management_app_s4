@@ -7,6 +7,8 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import { AuthProvider } from './context/AuthContext';
 import EventDetails from './pages/EventDetails'; // Create this page similarly to Home
+import { ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   return (
@@ -19,7 +21,9 @@ const App = () => {
           <Route path="/events/:id" element={<EventDetails />} />
           {/* Add more routes as needed */}
         </Routes>
+        <ToastContainer />
     </AuthProvider>
+    
   );
 };
 
